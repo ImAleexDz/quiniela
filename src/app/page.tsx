@@ -8,6 +8,11 @@ export default function Home() {
   const [selectedMatches, setSelectedMatches] = useState<{ [key: number]: string }>({});
   const [name, setName] = useState<string>("");
 
+  const initialSelectedMatches: { [key: number]: string } = {};
+  jornadas[0].matches.forEach((match) => {
+    initialSelectedMatches[match.match_id] = "";
+  });
+
   const sendDataToWhatsapp = () => {
     let message = `Quiniela de ${name}\n\n`;
 
@@ -112,6 +117,10 @@ export default function Home() {
 
           </div>
         ))}
+
+        <button type="button" className="btn btn-secondary me-3" onClick={() => setSelectedMatches(initialSelectedMatches)}>
+          Limpiar selecciones
+        </button>
 
         <button type="submit" className="btn btn-primary">
           Submit
