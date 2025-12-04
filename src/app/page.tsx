@@ -1,6 +1,6 @@
 'use client'
 import styles from "./page.module.css";
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import { soccerTeams, jornadas } from "../utils/resources";
 
 export default function Home() {
@@ -23,6 +23,12 @@ export default function Home() {
     const whatsappUrl = `https://wa.me/5575209743?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, "_blank");
   }
+
+  useEffect(() => {
+    fetch('/api/quiniela').then(res => res.json()).then(data => {
+      console.log(data);
+    });
+  }, []);
 
   return (
     <div className={`${styles.page} text-center mt-5`}>
