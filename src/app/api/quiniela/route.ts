@@ -1,5 +1,3 @@
-import { GoogleSpreadsheet } from 'google-spreadsheet';
-import { JWT } from 'google-auth-library';
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
 import path from 'path';
@@ -7,6 +5,13 @@ import path from 'path';
 
 export async function GET(request: NextRequest) {
     try {
+        // Check if required environment variables exist
+        if (!process.env.GOOGLE_SHEET_ID) {
+            return NextResponse.json({ 
+                error: 'Missing GOOGLE_SHEET_ID environment variable' 
+            }, { status: 500 });
+        }
+
         // Use JSON key file instead of environment variables
         const keyFilePath = path.join(process.cwd(), 'service-account-key.json');
         
@@ -18,7 +23,7 @@ export async function GET(request: NextRequest) {
         const sheets = google.sheets({ version: 'v4', auth });
         
         const response = await sheets.spreadsheets.values.get({
-            spreadsheetId: process.env.GOOGLE_SHEET_ID!,
+            spreadsheetId: process.env.GOOGLE_SHEET_ID,
             range: 'Hoja 1!A1:Z1000',
         });
 
@@ -40,6 +45,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
+        // Check if required environment variables exist
+        if (!process.env.GOOGLE_SHEET_ID) {
+            return NextResponse.json({ 
+                error: 'Missing GOOGLE_SHEET_ID environment variable' 
+            }, { status: 500 });
+        }
+
         const body = await request.json();
         const keyFilePath = path.join(process.cwd(), 'service-account-key.json');
 
@@ -51,7 +63,7 @@ export async function POST(request: NextRequest) {
         const sheets = google.sheets({ version: 'v4', auth });
         
         await sheets.spreadsheets.values.append({
-            spreadsheetId: process.env.GOOGLE_SHEET_ID!,
+            spreadsheetId: process.env.GOOGLE_SHEET_ID,
             range: 'Hoja 1!A:Z',
             valueInputOption: 'USER_ENTERED',
             requestBody: {
