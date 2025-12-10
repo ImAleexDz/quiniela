@@ -1,13 +1,11 @@
 'use client'
 import styles from "./page.module.css";
-import { useState, useEffect, use } from "react";
-import { jornadas } from "../utils/resources";
+import { useState, useEffect } from "react";
 
 export default function Home() {
 
   const [selectedMatches, setSelectedMatches] = useState<{ [key: string]: string }>({});
   const [name, setName] = useState<string>("");
-  const [sheetData, setSheetData] = useState<string[][]>([]);
   const [matches, setMatches] = useState<any[]>([]);
   const [currentJornada, setCurrentJornada] = useState<string>("");
   const [currentLeague, setCurrentLeague] = useState<string>("");
@@ -43,7 +41,6 @@ export default function Home() {
     fetch('/api/quiniela').then(res => res.json()).then(data => {
       console.log(data);
       if (data.data && Array.isArray(data.data)) {
-        setSheetData(data.data);
         setLoading(false);
         // Extract matches from data
         // Structure: [id_partido, equipo_local, equipo_visitante, info_liga, jornada]
