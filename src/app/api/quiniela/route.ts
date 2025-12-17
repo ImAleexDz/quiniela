@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { google } from 'googleapis';
-import path from 'path';
+// import path from 'path';
 
 const GOOGLE_SHEETS_ENABLED = true;
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
         // Check if required environment variables exist
         if (!process.env.GOOGLE_SHEET_ID) {
@@ -14,10 +14,10 @@ export async function GET(request: NextRequest) {
         }
 
         // Use JSON key file instead of environment variables
-        const keyFilePath = path.join(process.cwd(), 'service-account-key.json');
+        const keyFilePath = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT as string);
         
         const auth = new google.auth.GoogleAuth({
-            keyFile: keyFilePath,
+            credentials: keyFilePath,
             scopes: ['https://www.googleapis.com/auth/spreadsheets'],
         });
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
             range: 'Liga MX!A1:Z1000',
         });
 
-        const rows = response.data.values;
+        const rows = response.data?.values;
         return NextResponse.json({ 
             message: 'Data fetched successfully', 
             data: rows || [],
@@ -64,10 +64,10 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         console.log('Received form data:', body);
 
-        const keyFilePath = path.join(process.cwd(), 'service-account-key.json');
+        const keyFilePath = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT as string);
         
         const auth = new google.auth.GoogleAuth({
-            keyFile: keyFilePath,
+            credentials: keyFilePath,
             scopes: ['https://www.googleapis.com/auth/spreadsheets'],
         });
 
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
         // First, get the original match data to create proper headers
         const originalData = await sheets.spreadsheets.values.get({
             spreadsheetId: spreadsheetId!,
-            range: 'Hoja 1!A1:Z1000',
+            range: 'Liga MX!A1:Z1000',
         });
 
         const originalRows = originalData.data.values || [];
