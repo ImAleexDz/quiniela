@@ -12,7 +12,66 @@ export default function Home() {
   const [currentJornada, setCurrentJornada] = useState<string>("");
   const [currentLeague, setCurrentLeague] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [quinielasArray, setQuinielasArray] = useState<any[]>([]);
 
+  // Function to add current quiniela to array
+  const addQuinielaToArray = () => {
+    // Check if name is filled
+    if (!name.trim()) {
+      alert('Por favor ingresa tu nombre');
+      return;
+    }
+
+    // Check if all matches have a selection
+    const totalMatches = matches.length + internationalMatches.length;
+    if (Object.keys(selectedMatches).length < totalMatches) {
+      alert('Por favor completa todas las selecciones de los partidos');
+      return;
+    }
+    
+    // Validate marcador for last Liga MX match
+    if (matches.length > 0 && (!marcador.homeScore || !marcador.awayScore)) {
+      alert('Por favor ingresa el marcador del último partido de Liga MX');
+      return;
+    }
+
+    // Format selections: convert marcador format to score only (e.g., "3-2")
+    const formattedSelections: { [key: string]: string } = {};
+    Object.keys(selectedMatches).forEach((matchId) => {
+      const selection = selectedMatches[matchId];
+      if (selection.startsWith('marcador_')) {
+        formattedSelections[matchId] = selection.replace('marcador_', '');
+      } else {
+        formattedSelections[matchId] = selection;
+      }
+    });
+
+    const newQuiniela = {
+      nombre: name,
+      selecciones: formattedSelections,
+      jornada: currentJornada,
+      liga: 'Liga MX',
+      includeBothLeagues: true,
+      fecha: new Date().toISOString()
+    };
+
+    setQuinielasArray([...quinielasArray, newQuiniela]);
+    
+    // Clear form
+    setSelectedMatches({});
+    setMarcador({ homeScore: "", awayScore: "" });
+    setName("");
+    
+    alert(`Quiniela de ${name} guardada. Total: ${quinielasArray.length + 1}`);
+  };
+
+  // Function to remove a quiniela from array
+  const removeQuinielaFromArray = (index: number) => {
+    const newArray = quinielasArray.filter((_, i) => i !== index);
+    setQuinielasArray(newArray);
+  };
+
+  // Function to fill random selections
   const fillRandomSelections = () => {
     const randomSelections: { [key: string]: string } = {};
     
@@ -53,51 +112,21 @@ export default function Home() {
   };
 
   const sendDataToWhatsapp = async () => {
-    // Check if name is filled
-    if (!name.trim()) {
-      alert('Por favor ingresa tu nombre');
-      return;
-    }
-
-    // Check if all matches have a selection
-    const totalMatches = matches.length + internationalMatches.length;
-    if (Object.keys(selectedMatches).length < totalMatches) {
-      alert('Por favor completa todas las selecciones de los partidos');
-      return;
-    }
-    
-    // Validate marcador for last Liga MX match
-    if (matches.length > 0 && (!marcador.homeScore || !marcador.awayScore)) {
-      alert('Por favor ingresa el marcador del último partido de Liga MX');
+    // Check if there are quinielas to send
+    if (quinielasArray.length === 0) {
+      alert('No hay quinielas guardadas para enviar');
       return;
     }
 
     try {
-      // Format selections: convert marcador format to score only (e.g., "3-2")
-      const formattedSelections: { [key: string]: string } = {};
-      Object.keys(selectedMatches).forEach((matchId) => {
-        const selection = selectedMatches[matchId];
-        if (selection.startsWith('marcador_')) {
-          // Extract just the score part (e.g., "3-2" from "marcador_3-2")
-          formattedSelections[matchId] = selection.replace('marcador_', '');
-        } else {
-          formattedSelections[matchId] = selection;
-        }
-      });
-
-      // Single submission with both leagues data
+      // Send array of quinielas
       const response = await fetch('/api/quiniela', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          nombre: name,
-          selecciones: formattedSelections,
-          jornada: currentJornada,
-          liga: 'Liga MX', // Primary league for jornada reference
-          includeBothLeagues: true, // Flag to include both Liga MX and international
-          fecha: new Date().toISOString()
+          quinielas: quinielasArray
         })
       });
 
@@ -111,18 +140,17 @@ export default function Home() {
       console.log('Guardado exitoso:', result);
 
       // Submission successful
-      alert('Quiniela enviada correctamente. ¡Gracias por participar!');
+      alert(`${quinielasArray.length} quiniela(s) enviada(s) correctamente. ¡Gracias por participar!`);
+      setQuinielasArray([]);
       setSelectedMatches({});
       setMarcador({ homeScore: "", awayScore: "" });
       setName("");
       return;
     } catch (error) {
-      console.error("Error al enviar la quiniela: ", error);
+      console.error("Error al enviar las quinielas: ", error);
       alert('Hubo un error al conectar con Google sheets')
       return;
     }
-
-
   }
 
   useEffect(() => {
@@ -737,9 +765,38 @@ export default function Home() {
           <div className="justify-content-center">
             <label htmlFor="name" className="mt-3 mb-3 d-block">
               Nombre:
-            <input id="name" type="text" className="form-control mt-2" onChange={e => setName(e.target.value)} />
+            <input id="name" type="text" className="form-control mt-2" value={name} onChange={e => setName(e.target.value)} />
             </label>
           </div>
+
+          {/* Saved Quinielas List */}
+          {quinielasArray.length > 0 && (
+            <div className="mb-4">
+              <h4>Quinielas Guardadas ({quinielasArray.length})</h4>
+              <div className="list-group">
+                {quinielasArray.map((quiniela, index) => (
+                  <div key={index} className="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                      <strong>{quiniela.nombre}</strong> - Jornada {quiniela.jornada}
+                    </span>
+                    <button 
+                      type="button" 
+                      className="btn btn-sm btn-danger"
+                      onClick={() => removeQuinielaFromArray(index)}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                ))}
+
+                <div className="mt-4">
+                  <h3>
+                    Precio: <span>${quinielasArray.length * 10}</span>
+                  </h3>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="d-flex flex-column flex-sm-row gap-2 justify-content-center">
             <button type="button" className="btn btn-secondary" onClick={() => {
@@ -753,9 +810,15 @@ export default function Home() {
               Llenar al azar
             </button>
 
-            <button type="submit" className="btn btn-primary">
-              Enviar quiniela
+            <button type="button" className="btn btn-success" onClick={addQuinielaToArray}>
+              Guardar quiniela
             </button>
+
+            {quinielasArray.length > 0 && (
+              <button type="submit" className="btn btn-primary">
+                Enviar todas ({quinielasArray.length})
+              </button>
+            )}
           </div>
 
         </form>

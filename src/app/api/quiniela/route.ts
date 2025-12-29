@@ -74,6 +74,88 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         console.log('Received form data:', body);
 
+        // Check if we're receiving multiple quinielas
+        if (body.quinielas && Array.isArray(body.quinielas)) {
+            console.log(`Processing ${body.quinielas.length} quinielas`);
+            
+            const results = [];
+            const errors = [];
+
+            // Process each quiniela
+            for (let i = 0; i < body.quinielas.length; i++) {
+                const quiniela = body.quinielas[i];
+                console.log(`Processing quiniela ${i + 1}/${body.quinielas.length} for ${quiniela.nombre}`);
+
+                try {
+                    const result = await processQuiniela(quiniela);
+                    results.push({
+                        nombre: quiniela.nombre,
+                        success: true,
+                        ...result
+                    });
+                } catch (error) {
+                    console.error(`Error processing quiniela for ${quiniela.nombre}:`, error);
+                    errors.push({
+                        nombre: quiniela.nombre,
+                        success: false,
+                        error: error instanceof Error ? error.message : 'Unknown error'
+                    });
+                }
+            }
+
+            // Return combined results
+            if (errors.length === 0) {
+                return NextResponse.json({
+                    success: true,
+                    message: `${results.length} quiniela(s) guardada(s) exitosamente`,
+                    results
+                });
+            } else if (results.length === 0) {
+                return NextResponse.json({
+                    success: false,
+                    message: 'Todas las quinielas fallaron',
+                    errors
+                }, { status: 500 });
+            } else {
+                return NextResponse.json({
+                    success: true,
+                    message: `${results.length} de ${body.quinielas.length} quinielas guardadas`,
+                    results,
+                    errors
+                });
+            }
+        }
+
+        // Single quiniela mode (original behavior)
+        const result = await processQuiniela(body);
+        return NextResponse.json({
+            success: true,
+            message: `Quiniela de ${body.nombre} guardada en hoja ${result.sheetName}`,
+            ...result
+        });
+
+    } catch (error) {
+        console.error('Error saving to Google Sheets:', error);
+        
+        if (error instanceof Error) {
+            console.error('Error name:', error.name);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+        }
+        
+        return NextResponse.json({ 
+            error: 'Failed to save data',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
+    }
+}
+
+// Helper function to process a single quiniela
+async function processQuiniela(body: any): Promise<{ sheetName: string; data: any[] }> {
+    if (!process.env.GOOGLE_SHEET_ID) {
+        throw new Error('Missing GOOGLE_SHEET_ID environment variable');
+    }
+
         const keyFilePath = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT as string);
         
         const auth = new google.auth.GoogleAuth({
@@ -349,25 +431,8 @@ export async function POST(request: NextRequest) {
 
         console.log('Data successfully saved');
 
-        return NextResponse.json({ 
-            success: true, 
-            message: `Quiniela de ${body.nombre} guardada en hoja ${jornadaSheetName}`,
+        return {
             sheetName: jornadaSheetName,
             data: rowData
-        });
-        
-    } catch (error) {
-        console.error('Error saving to Google Sheets:', error);
-        
-        if (error instanceof Error) {
-            console.error('Error name:', error.name);
-            console.error('Error message:', error.message);
-            console.error('Error stack:', error.stack);
-        }
-        
-        return NextResponse.json({ 
-            error: 'Failed to save data',
-            details: error instanceof Error ? error.message : 'Unknown error'
-        }, { status: 500 });
-    }
+        };
 }
