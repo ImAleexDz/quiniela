@@ -1,0 +1,112 @@
+.page {
+    position: relative;
+    min-height: 100vh;
+    height: 100vh;
+    width: 100%;
+}
+
+.page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/logo-bg.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.2; /* Adjust this value between 0 and 1 */
+    z-index: -1;
+}
+
+.title {
+    background-image: url('/nobg-title.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 105px;
+    width: 100%;
+}
+
+.title h2 {
+    font-weight: bold;
+    color: #FFF;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+    text-align: center;
+    padding-top: .7rem;
+    font-style: italic;
+}
+
+.title div {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+}
+
+.title span {
+    font-size: 0.9rem;
+    color: #FFF;
+    font-weight: bold;
+    margin: 0;
+}
+
+.mobileLigaMx {
+    padding: 10px;
+}
+
+.marcador {
+    border: 1px solid #000;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-weight: bold;
+    width: 15px;
+}
+
+.team {
+    border: 1px solid #000;
+    background-color: #03939A;
+    border-radius: 10px;
+    display: inline-block;
+    width: 100%;
+    min-width: 100px; /* Minimum width to maintain consistency */
+    max-width: 150px; /* Maximum width to prevent too wide cells */
+    color: #FFF;
+    font-size: .8rem;
+    padding: 4px 8px;
+    white-space: normal; /* Allow text to wrap */
+    word-wrap: break-word; /* Break long words if necessary */
+    overflow-wrap: break-word; /* Modern alternative to word-wrap */
+    text-align: center;
+    line-height: 1.2;
+}
+
+.nameInput {
+    background-color: #FFF;
+    border-radius: 10px;
+    border: 1px solid #000;
+    margin: 15px 0;
+    padding: 10px;
+    text-align: start;
+}
+
+.nameInput label {
+    font-weight: bold;
+}
+
+.nameInput input {
+    border: none;
+}
+
+.buttonGroup :global(button) {
+    width: 100%;
+    max-width: 400px; /* Adjust based on design needs */
+}
+
+.footer {
+    background-color: #03939A;
+    border-radius: 20px 20px 0 0;
+    padding: 15px 20px;
+}

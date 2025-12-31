@@ -1,6 +1,9 @@
 'use client'
 import styles from "./page.module.css";
 import { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faShuffle, faPlus, faTrash, faX } from "@fortawesome/free-solid-svg-icons";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 
 export default function Home() {
 
@@ -257,7 +260,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className={`${styles.page} text-center mt-5 mb-5`}>
+    <div className={`${styles.page} text-center pt-2 pb-5`}>
       {loading && <p>{message}</p>}
 
       {!loading && (
@@ -267,15 +270,15 @@ export default function Home() {
         }}>
 
           {matches.length > 0 && (
-            <div className="mb-4">
+            <div>
               {/* <h3>Partidos - {currentLeague} Jornada {currentJornada}</h3> */}
-              <h2>Quinielinha</h2>
 
               {dateRange.start && dateRange.end && (
-                <div className="alert alert-info mb-3">
-                  <h4 className="mt-3">{currentLeague} - Jornada {currentJornada}</h4>
-                  <div className="mt-2">
-                    Del <strong>{dateRange.start}</strong> al <strong>{dateRange.end}</strong>
+                <div className={`${styles.title} mb-3`}>
+                  <h2>Quinielinha</h2>
+                  <div>
+                    <span>Jornada {currentJornada}</span>
+                    <span>Del {dateRange.start} al {dateRange.end}</span>
                   </div>
                 </div>
               )}
@@ -290,12 +293,12 @@ export default function Home() {
                       <th scope="col">Equipo Local</th>
                       <th scope="col">Empate</th>
                       <th scope="col">Equipo Visitante</th>
-                      <th scope="col">Visitante</th>
-                      <th scope="col">Fecha</th>
+                      <th scope="col" >Visitante</th>
                     </tr>
                   </thead>
 
                   <tbody>
+                    {/* Liga MX - Desktop */}
                     {matches.map((match, index) => {
                       const isLastMatch = index === matches.length - 1;
                       const selection = selectedMatches[match.match_id];
@@ -450,8 +453,18 @@ export default function Home() {
               </div>
 
               {/* Mobile Cards - Hidden on desktop */}
-              <div className="d-block d-md-none">
-                <table className="table table-sm table-bordered m-0 mb-3">
+              <div className={`${styles.mobileLigaMx} d-block d-md-none`}>
+                <table className="table table-sm table-borderless m-0">
+                  <thead className="table-borderless">
+                    <tr>
+                      <th scope="col">Local</th>
+                      <th scope="col"></th>
+                      <th scope="col">Empate</th>
+                      <th scope="col"></th>
+                      <th scope="col">Visita</th>
+                    </tr>
+                  </thead>
+
                   <tbody>
                     {matches.map((match, index) => {
                       const isLastMatch = index === matches.length - 1;
@@ -475,25 +488,21 @@ export default function Home() {
 
                             <tr key={match.match_id}>
                               <td colSpan={5}>
-                                <div className="card mb-3 border-primary">
-                                  <div className="card-body">
-                                    {/* Teams Header */}
-                                    <div className="d-flex justify-content-between align-items-center mb-3">
-                                      <span className="fw-light">{match.home_team}</span>
-                                      <span className="text-muted">VS</span>
-                                      <span className="fw-light">{match.away_team}</span>
-                                    </div>
+                                <div>
+                                  {/* Teams Header */}
+                                  <div className="d-flex justify-content-between align-items-center gap-1">
+                                    <span className={`${styles.team} fw-bold`}>{match.home_team}</span>
 
                                     {/* Marcador Input */}
                                     <div className="text-center">
-                                      <label className="form-label fw-bold text-primary">Marcador exacto</label>
-                                      <div className="d-flex align-items-center gap-2 justify-content-center">
+
+                                      <div className="d-flex align-items-center gap-1 justify-content-center">
                                         <input
                                           type="number"
                                           min="0"
-                                          max="99"
+                                          max="9"
                                           className="form-control form-control-lg text-center"
-                                          style={{ width: '80px' }}
+                                          style={{ width: "50px", fontSize: ".9rem" }}
                                           placeholder="0"
                                           value={marcador.homeScore}
                                           onChange={(e) => {
@@ -507,13 +516,13 @@ export default function Home() {
                                             }
                                           }}
                                         />
-                                        <span className="fw-bold fs-4">-</span>
+
                                         <input
                                           type="number"
                                           min="0"
-                                          max="99"
+                                          max="9"
                                           className="form-control form-control-lg text-center"
-                                          style={{ width: '80px' }}
+                                          style={{ width: "50px", fontSize: ".9rem" }}
                                           placeholder="0"
                                           value={marcador.awayScore}
                                           onChange={(e) => {
@@ -528,9 +537,12 @@ export default function Home() {
                                           }}
                                         />
                                       </div>
-                                      <small className="text-muted">Ingresa el resultado exacto</small>
+
                                     </div>
+
+                                    <span className={`${styles.team} fw-bold`}>{match.away_team}</span>
                                   </div>
+
                                 </div>
                               </td>
                             </tr>
@@ -547,10 +559,11 @@ export default function Home() {
                               </td>
                           </tr>
                           )} */}
-                          <tr className="mb-3">
+
+                          <tr>
                             <td
-                              width={'40px'}
-                              className={`${isHomeSelected ? 'text-bg-success' : 'btn-outline-success'} align-middle`}
+                              width={'30px'}
+                              className={`align-middle`}
                               onClick={() =>
                                 setSelectedMatches({
                                   ...selectedMatches,
@@ -559,18 +572,18 @@ export default function Home() {
                               }
                             >
                               {/* Local Button */}
-                              <span>
+                              <span className={`${styles.marcador} ${isHomeSelected ? 'text-bg-success' : 'btn-outline-success'}`}>
                                 {isHomeSelected && ''} L
                               </span>
                             </td>
 
                             <td className="text-center align-middle">
-                              <span className="fw-light">{match.home_team}</span>
+                              <span className={`${styles.team} fw-bold`}>{match.home_team}</span>
                             </td>
 
                             <td
-                              width={'40px'}
-                              className={`${isDrawSelected ? 'text-bg-primary' : 'btn-outline-success'} align-middle`}
+                              width={'30px'}
+                              className={`align-middle`}
                               onClick={() =>
                                 setSelectedMatches({
                                   ...selectedMatches,
@@ -579,18 +592,18 @@ export default function Home() {
                               }
                             >
                               {/* Draw Button */}
-                              <span>
+                              <span className={`${styles.marcador} ${isDrawSelected ? 'text-bg-primary' : 'btn-outline-success'}`}>
                                 {isDrawSelected && ''} E
                               </span>
                             </td>
 
                             <td className="align-middle">
-                              <span className="fw-light">{match.away_team}</span>
+                              <span className={`${styles.team} fw-bold`}>{match.away_team}</span>
                             </td>
 
                             <td
-                              width={'40px'}
-                              className={`${isAwaySelected ? 'text-bg-success' : 'btn-outline-success'} align-middle`}
+                              width={'30px'}
+                              className={`align-middle`}
                               onClick={() =>
                                 setSelectedMatches({
                                   ...selectedMatches,
@@ -599,10 +612,11 @@ export default function Home() {
                               }
                             >
                               {/* Away Button */}
-                              <span>
+                              <span className={`${styles.marcador} ${isAwaySelected ? 'text-bg-success' : 'btn-outline-success'}`}>
                                 {isAwaySelected && ''} V
                               </span>
                             </td>
+
                             <td className="d-none">
                               {/* Hidden radio inputs for form validation */}
                               <input
@@ -749,8 +763,8 @@ export default function Home() {
               </div>
 
               {/* Mobile Cards - Hidden on desktop */}
-              <div className="d-block d-md-none">
-                <table className="table table-sm table-bordered m-0 mb-3">
+              <div className={`${styles.mobileLigaMx} d-block d-md-none`}>
+                <table className="table table-sm table-borderless m-0 mb-3">
                   <tbody>
                     {internationalMatches.map((match) => {
                       const selection = selectedMatches[match.match_id];
@@ -767,8 +781,8 @@ export default function Home() {
                           </tr> */}
                           <tr className="mb-3">
                             <td
-                              width={'40px'}
-                              className={`${isHomeSelected ? 'text-bg-success' : 'btn-outline-success'} align-middle`}
+                              width={'30px'}
+                              className={`align-middle`}
                               onClick={() =>
                                 setSelectedMatches({
                                   ...selectedMatches,
@@ -777,18 +791,18 @@ export default function Home() {
                               }
                             >
                               {/* Local Button */}
-                              <span>
+                              <span className={`${styles.marcador} ${isHomeSelected ? 'text-bg-success' : 'btn-outline-success'}`}>
                                 {isHomeSelected && ''} L
                               </span>
                             </td>
 
                             <td className="text-center align-middle">
-                              <span className="fw-light">{match.home_team}</span>
+                              <span className={`${styles.team} fw-bold`}>{match.home_team}</span>
                             </td>
 
                             <td
-                              width={'40px'}
-                              className={`${isDrawSelected ? 'text-bg-primary' : 'btn-outline-success'} align-middle`}
+                              width={'30px'}
+                              className={`align-middle`}
                               onClick={() =>
                                 setSelectedMatches({
                                   ...selectedMatches,
@@ -797,18 +811,18 @@ export default function Home() {
                               }
                             >
                               {/* Draw Button */}
-                              <span>
+                              <span className={`${styles.marcador} ${isDrawSelected ? 'text-bg-primary' : 'btn-outline-success'}`}>
                                 {isDrawSelected && ''} E
                               </span>
                             </td>
 
                             <td className="align-middle">
-                              <span className="fw-light">{match.away_team}</span>
+                              <span className={`${styles.team} fw-bold`}>{match.away_team}</span>
                             </td>
 
                             <td
-                              width={'40px'}
-                              className={`${isAwaySelected ? 'text-bg-success' : 'btn-outline-success'} align-middle`}
+                              width={'30px'}
+                              className={`align-middle`}
                               onClick={() =>
                                 setSelectedMatches({
                                   ...selectedMatches,
@@ -817,7 +831,7 @@ export default function Home() {
                               }
                             >
                               {/* Away Button */}
-                              <span>
+                              <span className={`${styles.marcador} ${isAwaySelected ? 'text-bg-success' : 'btn-outline-success'}`}>
                                 {isAwaySelected && ''} V
                               </span>
                             </td>
@@ -861,81 +875,126 @@ export default function Home() {
           {/* Saved Quinielas List */}
           {quinielasArray.length > 0 && (
             <div className="mb-4">
-              <h4>Quinielas Guardadas ({quinielasArray.length})</h4>
-              <div className="list-group">
-                {quinielasArray.map((quiniela, index) => (
-                  <div key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                    <span>
-                      <strong>{quiniela.nombre}</strong> - Jornada {quiniela.jornada}
-                    </span>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-danger"
-                      onClick={() => removeQuinielaFromArray(index)}
-                    >
-                      Eliminar
-                    </button>
+              <div>
+                {/* Saved Quinielas List */}
+                {quinielasArray.length > 0 && (
+                  <div className="ps-3 pe-3">
+                    {quinielasArray.map((quiniela, index) => {
+                      // Get all matches for this quiniela
+                      const quinielaMatches = [...matches, ...internationalMatches];
+
+                      return (
+                        <div key={index} className="list-group-item">
+                          <div className="d-flex justify-content-between align-items-center mb-2">
+                            {/* Display selections */}
+                            <div>
+                              <div className="d-flex flex-wrap align-middle gap-2">
+                                {Object.entries(quiniela.selecciones).map(([matchId, selection]) => {
+                                  const match = quinielaMatches.find(m => m.match_id === matchId);
+                                  if (!match) return null;
+
+                                  let displayValue = '';
+                                  const selectionStr = String(selection);
+
+                                  // Check if it's a score (contains only numbers and dash)
+                                  if (/^\d+-\d+$/.test(selectionStr)) {
+                                    displayValue = selectionStr;
+                                  } else if (selectionStr.includes('gana_local')) {
+                                    displayValue = 'L';
+                                  } else if (selectionStr === 'empate') {
+                                    displayValue = 'E';
+                                  } else if (selectionStr.includes('gana_visitante')) {
+                                    displayValue = 'V';
+                                  }
+
+                                  return (
+                                    <span key={matchId} className="fw-bold" style={{ fontSize: '0.9rem', color: '#03939A' }}>
+                                      {displayValue}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <FontAwesomeIcon 
+                              onClick={() => removeQuinielaFromArray(index)}
+                              icon={faX} 
+                              width={65}
+                              style={{ color: '#03939A' }}
+                            />
+
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
 
-          <div className="d-flex flex-column justify-content-between gap-4 mb-4">
-            <span>
-              <strong>Entrada:</strong> $20.00
-            </span>
+          {/* Footer */}
 
-            <span>
-              <strong>Cierre:</strong> Viernes 6:00 PM
-            </span>
+          <div className={`${styles.footer}`}>
 
-            <span>
-              <strong>Informes:</strong> 55 1234 5678
-            </span>
-          </div>
+            <div className="d-flex flex-column justify-content-between">
+              <p className="m-0 fw-bold text-warning">
+                <span className="text-light">Entrada:</span> $20.00
+              </p>
 
+              <p className="m-0 fw-bold text-warning">
+                <span className="text-light">Cierre:</span> Viernes 18:00 hrs
+              </p>
 
-          <div className="justify-content-center">
-            <label htmlFor="name" className="mt-3 mb-3 d-block">
-              Nombre:
-              <input id="name" type="text" className="form-control mt-2" value={name} onChange={e => setName(e.target.value)} />
-            </label>
-          </div>
-
-          {/* Total */}
-          {quinielasArray.length > 0 && (
-            <div className="mb-4">
-              <h3>
-                Precio: <span>${(quinielasArray.length * 20).toFixed(2)}</span>
-              </h3>
-            </div>
-          )}
-
-          <div className="d-flex flex-column flex-sm-row gap-2 justify-content-center">
-            <div className="d-flex justify-content-between gap-2">
-              <button type="button" className="btn btn-secondary" onClick={() => {
-                setSelectedMatches({});
-                setMarcador({ homeScore: "", awayScore: "" });
-              }}>
-                Limpiar
-              </button>
-
-              <button type="button" className="btn btn-info" onClick={fillRandomSelections}>
-                Aleatorio
-              </button>
-
-              <button type="button" className="btn btn-success" onClick={addQuinielaToArray}>
-                Agregar
-              </button>
+              <p className="m-0 fw-bold text-warning">
+                <span className="text-light">Informes:</span> 56 4849 6470
+              </p>
             </div>
 
+            <div className={`${styles.nameInput}`}>
+              <label htmlFor="name" className="d-block">
+                Nombre:
+                <input id="name" type="text" className="form-control mt-2" value={name} onChange={e => setName(e.target.value)} />
+              </label>
+            </div>
+
+            {/* Total */}
             {quinielasArray.length > 0 && (
-              <button type="submit" className="btn btn-primary">
-                Enviar todas ({quinielasArray.length})
-              </button>
+              <div className="mb-4">
+                <h5 className="fw-bold">
+                  Precio: <span>${(quinielasArray.length * 20).toFixed(2)}</span>
+                </h5>
+              </div>
             )}
+
+            <div className="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+              <div className={`${styles.buttonGroup} d-flex justify-content-between gap-2`}>
+
+                <button type="button" className="btn btn-warning" onClick={() => {
+                  setSelectedMatches({});
+                  setMarcador({ homeScore: "", awayScore: "" });
+                }}>
+                  <FontAwesomeIcon icon={faTrash} width={65} />
+                </button>
+
+                <button type="button" className="btn btn-warning" onClick={addQuinielaToArray}>
+                  <FontAwesomeIcon icon={faPlus} width={65} />
+                </button>
+
+                <button type="button" className="btn btn-warning" onClick={fillRandomSelections}>
+                  <FontAwesomeIcon icon={faShuffle} width={65} />
+                </button>
+              </div>
+
+              {quinielasArray.length > 0 && (
+                <button type="submit" className="btn btn-success">
+                  Enviar <FontAwesomeIcon icon={faWhatsapp} style={{color: '#FFF'}} width={85} />
+                </button>
+              )}
+            </div>
+
           </div>
+
 
         </form>
       )}
