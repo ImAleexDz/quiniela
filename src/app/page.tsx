@@ -13,6 +13,8 @@ export default function Home() {
   const [currentLeague, setCurrentLeague] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [quinielasArray, setQuinielasArray] = useState<any[]>([]);
+  const [message, setMessage] = useState<string>("Cargando datos...");
+  const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
 
   // Function to add current quiniela to array
   const addQuinielaToArray = () => {
@@ -117,6 +119,8 @@ export default function Home() {
       alert('No hay quinielas guardadas para enviar');
       return;
     }
+    setLoading(true);
+    setMessage('Enviando respuestas...');
 
     try {
       // Send array of quinielas
@@ -140,6 +144,8 @@ export default function Home() {
       console.log('Guardado exitoso:', result);
 
       // Submission successful
+      setLoading(false);
+      setMessage('');
       alert(`${quinielasArray.length} quiniela(s) enviada(s) correctamente. ¡Gracias por participar!`);
       setQuinielasArray([]);
       setSelectedMatches({});
@@ -161,17 +167,62 @@ export default function Home() {
 
       if (data.data && Array.isArray(data.data)) {
         setLoading(false);
+
+        let minDate: Date | null = null;
+        let maxDate: Date | null = null;
+
         // Process matches based on sheet name
-        const matchesData = data.data.slice(1).map((row: string[]) => ({
-          match_id: row[0],
-          home_team: row[1],
-          away_team: row[2],
-          league: row[3],
-          date: row[4],
-          jornada: row[5]
-        }));
+        const matchesData = data.data.slice(1).map((row: string[]) => {
+          let formattedDate = row[4];
+          let dateOnly = row[4];
+          try {
+            const date = new Date(row[4]);
+
+            // Track min and max dates
+            if (!minDate || date < minDate) minDate = date;
+            if (!maxDate || date > maxDate) maxDate = date;
+
+
+            formattedDate = date.toLocaleDateString('es-MX', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })
+
+            //Date without time
+            dateOnly = date.toLocaleDateString('es-MX', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })
+          } catch (error) {
+            formattedDate = row[4];
+          }
+
+          return {
+            match_id: row[0],
+            home_team: row[1],
+            away_team: row[2],
+            league: row[3],
+            date: formattedDate,
+            dateOnly: dateOnly,
+            jornada: row[5]
+          }
+
+        });
 
         setMatches(matchesData);
+
+        // Set date range
+        if (minDate && maxDate) {
+          const startOptions: Intl.DateTimeFormatOptions = { day: 'numeric' };
+          const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+          setDateRange({
+            start: (minDate as Date).toLocaleDateString('es-MX', startOptions),
+            end: (maxDate as Date).toLocaleDateString('es-MX', options)
+          })
+        }
 
         if (matchesData.length > 0) {
           setCurrentJornada(matchesData[0].jornada);
@@ -207,7 +258,7 @@ export default function Home() {
 
   return (
     <div className={`${styles.page} text-center mt-5 mb-5`}>
-      {loading && <p>Cargando datos de la quiniela...</p>}
+      {loading && <p>{message}</p>}
 
       {!loading && (
         <form onSubmit={(e) => {
@@ -217,7 +268,17 @@ export default function Home() {
 
           {matches.length > 0 && (
             <div className="mb-4">
-              <h3>Partidos - {currentLeague} Jornada {currentJornada}</h3>
+              {/* <h3>Partidos - {currentLeague} Jornada {currentJornada}</h3> */}
+              <h2>Quinielinha</h2>
+
+              {dateRange.start && dateRange.end && (
+                <div className="alert alert-info mb-3">
+                  <h4 className="mt-3">{currentLeague} - Jornada {currentJornada}</h4>
+                  <div className="mt-2">
+                    Del <strong>{dateRange.start}</strong> al <strong>{dateRange.end}</strong>
+                  </div>
+                </div>
+              )}
 
               {/* Desktop Table - Hidden on mobile */}
               <div className="table-responsive d-none d-md-block container">
@@ -398,16 +459,19 @@ export default function Home() {
                       const isHomeSelected = selection === `gana_local_${match.home_team}`;
                       const isDrawSelected = selection === "empate";
                       const isAwaySelected = selection === `gana_visitante_${match.away_team}`;
+                      const showDateheader = index === 0 || matches[index - 1].dateOnly !== match.dateOnly;
 
                       // Special rendering for the last match (marcador)
                       if (isLastMatch) {
                         return (
                           <>
-                            <tr>
+                            {/* {showDateheader && (
+                              <tr>
                               <td colSpan={5} className="text-center align-middle text-bg-light">
-                                <span className="fw-light">{new Date(match.date).toLocaleDateString('es-MX', { hour: '2-digit', minute: '2-digit', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                                <span className="fw-light">{match.dateOnly}</span>
                               </td>
                             </tr>
+                            )} */}
 
                             <tr key={match.match_id}>
                               <td colSpan={5}>
@@ -476,11 +540,13 @@ export default function Home() {
 
                       return (
                         <>
-                          <tr>
-                            <td colSpan={5} className="text-center align-middle text-bg-light">
-                              <span className="fw-light">{new Date(match.date).toLocaleDateString('es-MX', { hour: '2-digit', minute: '2-digit', weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                            </td>
+                          {/* {showDateheader && (
+                            <tr>
+                              <td colSpan={5} className="text-center align-middle text-bg-light">
+                                <span className="fw-light">{match.dateOnly}</span>
+                              </td>
                           </tr>
+                          )} */}
                           <tr className="mb-3">
                             <td
                               width={'40px'}
@@ -579,7 +645,7 @@ export default function Home() {
 
           {internationalMatches.length > 0 && (
             <div className="mb-4">
-              <h3>Partidos Internacionales</h3>
+              {/* <h4>Partidos Internacionales</h4> */}
 
               {/* Desktop Table - Hidden on mobile */}
               <div className="table-responsive d-none d-md-block">
@@ -694,11 +760,11 @@ export default function Home() {
 
                       return (
                         <>
-                          <tr>
+                          {/* <tr>
                             <td colSpan={5} className="text-center align-middle text-bg-light">
                               <span className="fw-light">{match.league}</span>
                             </td>
-                          </tr>
+                          </tr> */}
                           <tr className="mb-3">
                             <td
                               width={'40px'}
@@ -789,17 +855,8 @@ export default function Home() {
                   </tbody>
                 </table>
               </div>
-
             </div>
           )}
-
-
-          <div className="justify-content-center">
-            <label htmlFor="name" className="mt-3 mb-3 d-block">
-              Nombre:
-              <input id="name" type="text" className="form-control mt-2" value={name} onChange={e => setName(e.target.value)} />
-            </label>
-          </div>
 
           {/* Saved Quinielas List */}
           {quinielasArray.length > 0 && (
@@ -820,31 +877,58 @@ export default function Home() {
                     </button>
                   </div>
                 ))}
-
-                <div className="mt-4">
-                  <h3>
-                    Total: <span>${(quinielasArray.length * 10).toFixed(2)}</span>
-                  </h3>
-                </div>
               </div>
             </div>
           )}
 
+          <div className="d-flex flex-column justify-content-between gap-4 mb-4">
+            <span>
+              <strong>Entrada:</strong> $20.00
+            </span>
+
+            <span>
+              <strong>Cierre:</strong> Viernes 6:00 PM
+            </span>
+
+            <span>
+              <strong>Informes:</strong> 55 1234 5678
+            </span>
+          </div>
+
+
+          <div className="justify-content-center">
+            <label htmlFor="name" className="mt-3 mb-3 d-block">
+              Nombre:
+              <input id="name" type="text" className="form-control mt-2" value={name} onChange={e => setName(e.target.value)} />
+            </label>
+          </div>
+
+          {/* Total */}
+          {quinielasArray.length > 0 && (
+            <div className="mb-4">
+              <h3>
+                Precio: <span>${(quinielasArray.length * 20).toFixed(2)}</span>
+              </h3>
+            </div>
+          )}
+
           <div className="d-flex flex-column flex-sm-row gap-2 justify-content-center">
-            <button type="button" className="btn btn-secondary" onClick={() => {
-              setSelectedMatches({});
-              setMarcador({ homeScore: "", awayScore: "" });
-            }}>
-              Limpiar selecciones
-            </button>
+            <div className="d-flex justify-content-between gap-2">
+              <button type="button" className="btn btn-secondary" onClick={() => {
+                setSelectedMatches({});
+                setMarcador({ homeScore: "", awayScore: "" });
+              }}>
+                Limpiar
+              </button>
 
-            <button type="button" className="btn btn-info" onClick={fillRandomSelections}>
-              Llenar al azar
-            </button>
+              <button type="button" className="btn btn-info" onClick={fillRandomSelections}>
+                Aleatorio
+              </button>
 
-            <button type="button" className="btn btn-success" onClick={addQuinielaToArray}>
-              Agregar quiniela
-            </button>
+              <button type="button" className="btn btn-success" onClick={addQuinielaToArray}>
+                Agregar
+              </button>
+            </div>
 
             {quinielasArray.length > 0 && (
               <button type="submit" className="btn btn-primary">
