@@ -11,8 +11,8 @@
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
-    background-image: url('/logo-bg.jpeg');
+    bottom: 200px;
+    background-image: url('/logo-bg.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -27,6 +27,7 @@
     background-repeat: no-repeat;
     height: 105px;
     width: 100%;
+    padding-top: 10px;
 }
 
 .title h2 {
@@ -38,6 +39,7 @@
     text-align: center;
     padding-top: .7rem;
     font-style: italic;
+    font-family: "Shrikhand", serif;
 }
 
 .title div {
@@ -47,14 +49,22 @@
 }
 
 .title span {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: #FFF;
     font-weight: bold;
     margin: 0;
+    line-height: 1;
 }
 
 .mobileLigaMx {
-    padding: 10px;
+    padding: 0 10px;
+}
+
+.spanNumber {
+    position: absolute;
+    left: 4px;
+    font-size: 0.65rem;
+    margin-top: 7px;
 }
 
 .marcador {
@@ -62,7 +72,8 @@
     border-radius: 4px;
     padding: 2px 6px;
     font-weight: bold;
-    width: 15px;
+    display: inline-block;
+    width: 30px;
 }
 
 .team {
@@ -70,8 +81,8 @@
     background-color: #03939A;
     border-radius: 10px;
     display: inline-block;
-    width: 100%;
-    min-width: 100px; /* Minimum width to maintain consistency */
+    width: 110px;
+    min-width: 110px; /* Minimum width to maintain consistency */
     max-width: 150px; /* Maximum width to prevent too wide cells */
     color: #FFF;
     font-size: .8rem;
