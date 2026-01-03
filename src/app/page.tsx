@@ -233,8 +233,8 @@ export default function Home() {
       const encodedMessage = encodeURIComponent(whatsappMessage);
       const whatsappURL = `https://wa.me/5215648496470?text=${encodedMessage}`;
 
-      // Open WhatsApp in a new window/tab
-      window.open(whatsappURL, '_blank');
+      // Open WhatsApp in the same tab instead of new window
+      window.location.href = whatsappURL;
 
       // Submission successful
       setLoading(false);
