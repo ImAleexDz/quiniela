@@ -121,3 +121,30 @@
     border-radius: 20px 20px 0 0;
     padding: 15px 20px;
 }
+
+.instructions ul {
+    padding: 0 20px;
+}
+
+.instructions p {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #FFF;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.instructions li{
+    list-style: decimal;
+    font-size: 0.8rem;
+    text-align: start;
+    color: #FFF;
+}
+
+.instructions span {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #FFF;
+    text-align: center;
+    margin-top: 15px;
+}

@@ -117,11 +117,46 @@ export default function Home() {
   };
 
   const sendDataToWhatsapp = async () => {
-    // Check if there are quinielas to send
-    if (quinielasArray.length === 0) {
-      alert('No hay quinielas guardadas para enviar');
+    // Check if current form has selections
+    const totalMatches = matches.length + internationalMatches.length;
+    const hasCurrentSelections = Object.keys(selectedMatches).length === totalMatches &&
+      name.trim() &&
+      marcador.homeScore &&
+      marcador.awayScore;
+
+    // If there's a current quiniela being filled, add it first
+    if (hasCurrentSelections) {
+      addQuinielaToArray();
+      // Wait a bit for state to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    // Check if there are quinielas to send (including the one we just added)
+    const quinielasToSend = hasCurrentSelections ? [...quinielasArray, {
+      nombre: name,
+      selecciones: (() => {
+        const formattedSelections: { [key: string]: string } = {};
+        Object.keys(selectedMatches).forEach((matchId) => {
+          const selection = selectedMatches[matchId];
+          if (selection.startsWith('marcador_')) {
+            formattedSelections[matchId] = selection.replace('marcador_', '');
+          } else {
+            formattedSelections[matchId] = selection;
+          }
+        });
+        return formattedSelections;
+      })(),
+      jornada: currentJornada,
+      liga: 'Liga MX',
+      includeBothLeagues: true,
+      fecha: new Date().toISOString()
+    }] : quinielasArray;
+
+    if (quinielasToSend.length === 0) {
+      alert('Por favor completa al menos una quiniela antes de enviar');
       return;
     }
+
     setLoading(true);
     setMessage('Enviando respuestas...');
 
@@ -133,7 +168,7 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          quinielas: quinielasArray
+          quinielas: quinielasToSend
         })
       });
 
@@ -141,6 +176,7 @@ export default function Home() {
 
       if (response.status !== 200 || !result.success) {
         alert('Hubo un error al enviar las predicciones. Por favor intenta de nuevo.');
+        setLoading(false);
         return;
       }
       console.log('Guardado exitoso:', result);
@@ -149,11 +185,11 @@ export default function Home() {
       const quinielaMatches = [...matches, ...internationalMatches];
       let whatsappMessage = `🎯 *La Quinielinha - Jornada ${currentJornada}*\n\n`;
       whatsappMessage += `📅 Del ${dateRange.start} al ${dateRange.end}\n`;
-      whatsappMessage += `💰 Total: $${(quinielasArray.length * 20).toFixed(2)}\n\n`;
+      whatsappMessage += `💰 Total: $${(quinielasToSend.length * 20).toFixed(2)}\n\n`;
       whatsappMessage += `━━━━━━━━━━━━━━━━\n\n`;
 
       // Iterate through each quiniela
-      quinielasArray.forEach((quiniela, index) => {
+      quinielasToSend.forEach((quiniela, index) => {
         whatsappMessage += `*Quiniela ${index + 1}: ${quiniela.nombre}*\n`;
 
         // Sort selections to maintain correct order
@@ -195,7 +231,7 @@ export default function Home() {
 
       // Encode message for WhatsApp URL
       const encodedMessage = encodeURIComponent(whatsappMessage);
-      const whatsappURL = `https://wa.me/5548496470?text=${encodedMessage}`;
+      const whatsappURL = `https://wa.me/5215648496470?text=${encodedMessage}`;
 
       // Open WhatsApp in a new window/tab
       window.open(whatsappURL, '_blank');
@@ -203,7 +239,7 @@ export default function Home() {
       // Submission successful
       setLoading(false);
       setMessage('');
-      alert(`${quinielasArray.length} quiniela(s) enviada(s) correctamente. ¡Gracias por participar!`);
+      alert(`${quinielasToSend.length} quiniela(s) enviada(s) correctamente. ¡Gracias por participar!`);
 
       // Clear data
       setQuinielasArray([]);
@@ -213,7 +249,8 @@ export default function Home() {
 
     } catch (error) {
       console.error("Error al enviar las quinielas: ", error);
-      alert('Hubo un error al conectar con Google sheets')
+      alert('Hubo un error al conectar con Google Sheets');
+      setLoading(false);
       return;
     }
   }
@@ -1015,14 +1052,46 @@ export default function Home() {
               </label>
             </div>
 
-            {/* Total */}
-            {quinielasArray.length > 0 && (
-              <div className="mb-4">
-                <h5 className="fw-bold">
-                  Precio: <span>${(quinielasArray.length * 20).toFixed(2)}</span>
-                </h5>
-              </div>
-            )}
+            {/* Total - Show current total including unsaved quiniela if being filled */}
+            <div className="mb-4">
+              <h5 className="fw-bold">
+                Precio: <span>${((quinielasArray.length + (name.trim() && Object.keys(selectedMatches).length > 0 ? 1 : 0)) * 20).toFixed(2)}</span>
+              </h5>
+            </div>
+
+            <div className={`${styles.instructions} mb-4`}>
+              <p>
+                Pasos para enviar tu quiniela 📝
+              </p>
+              <ul>
+                <li>
+                  Entra al link de la quiniela
+                </li>
+                <li>
+                  Llena tus pronósticos
+                </li>
+                <li>
+                  Escribe el nombre de tu quiniela
+                </li>
+                <li>
+                  Da clic en <u>Agregar</u> quiniela (+)
+                </li>
+                <li>
+                  Cuando termines, da clic en Enviar por WhatsApp
+                </li>
+                <li>
+                  Se enviará automáticamente al WhatsApp de La Quinielinha
+                </li>
+              </ul>
+
+              <span>
+                ⚠️ Importante <br />
+                Si haces más de una quiniela, agrega cada una con (+)
+                Si no presionas <u>Agregar</u> quiniela (+) antes de enviar, el mensaje llegará en blanco.
+                <br />
+                Puedes <u>limpiar</u> tu quiniela o usar <u>aleatorio</u> con los botones extra. 
+              </span>
+            </div>
 
             <div className="d-flex flex-column flex-sm-row gap-2 justify-content-center">
               <div className={`${styles.buttonGroup} d-flex justify-content-between gap-2`}>
@@ -1043,11 +1112,10 @@ export default function Home() {
                 </button>
               </div>
 
-              {quinielasArray.length > 0 && (
-                <button type="submit" className="btn btn-success">
-                  Enviar <FontAwesomeIcon icon={faWhatsapp} style={{ color: '#FFF' }} width={85} />
-                </button>
-              )}
+              {/* Always show send button */}
+              <button type="submit" className="btn btn-success">
+                Enviar <FontAwesomeIcon icon={faWhatsapp} style={{ color: '#FFF' }} width={85} />
+              </button>
             </div>
 
           </div>
