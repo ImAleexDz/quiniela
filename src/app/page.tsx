@@ -360,7 +360,13 @@ export default function Home() {
         <form onSubmit={(e) => {
           e.preventDefault();
           sendDataToWhatsapp();
-        }}>
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+          }
+        }}
+        >
 
           {matches.length > 0 && (
             <div>
