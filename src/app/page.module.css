@@ -25,6 +25,9 @@
         height: 100vh;
         padding: 0;
     }
+    .page::before {
+        background-size: cover;
+    }
     .title {
         background-size: cover;
     }
@@ -101,6 +104,9 @@
 }
 
 .team {
+    font-family: "Passion One", sans-serif;
+    font-weight: 400;
+    font-style: normal;
     border: 1px solid #000;
     background-color: #03939A;
     border-radius: 10px;

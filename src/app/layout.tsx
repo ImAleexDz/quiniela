@@ -27,7 +27,7 @@ export default function RootLayout({
         <title>La Quinielinha</title>
         <link rel="preconnect" href="https://fonts.googleapis.com"/>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous"/>
-        <link href="https://fonts.googleapis.com/css2?family=Shrikhand&display=swap" rel="stylesheet"/>
+        <link href="https://fonts.googleapis.com/css2?family=Passion+One:wght@400;700;900&family=Shrikhand&display=swap" rel="stylesheet"/>
         <link rel="icon" href="/quinielinha-logo.jpeg" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
