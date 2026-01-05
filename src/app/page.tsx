@@ -239,7 +239,7 @@ export default function Home() {
       // Submission successful
       setLoading(false);
       setMessage('');
-      alert(`${quinielasToSend.length} quiniela(s) enviada(s) correctamente. ¡Gracias por participar!`);
+      alert(`${quinielasToSend.length} quiniela(s) enviada(s) correctamente. ¡Gracias por participar! Cierra esta ventana para continuar`);
 
       // Clear data
       setQuinielasArray([]);
