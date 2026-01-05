@@ -353,8 +353,8 @@ export default function Home() {
   }, []);
 
   return (
-    <div className={`${styles.page} text-center pt-2 pb-5`}>
-      {loading && <p>{message}</p>}
+    <div className={`${!loading ? styles.page : ''} text-center pt-2 pb-5`}>
+      {loading && <p className="mt-5">{message}</p>}
 
       {!loading && (
         <form onSubmit={(e) => {
@@ -388,10 +388,11 @@ export default function Home() {
 
                   <thead className="table-primary">
                     <tr>
+                      <th scope="col"></th>
                       <th scope="col">Local</th>
-                      <th scope="col">Equipo Local</th>
+                      <th scope="col"></th>
                       <th scope="col">Empate</th>
-                      <th scope="col">Equipo Visitante</th>
+                      <th scope="col"></th>
                       <th scope="col" >Visitante</th>
                     </tr>
                   </thead>
@@ -413,137 +414,162 @@ export default function Home() {
                       // Special rendering for the last match (marcador)
                       if (isLastMatch) {
                         return (
-                          <tr key={match.match_id} className="table-active">
-                            <td colSpan={1} className="text-end fw-semibold align-middle">
-                              {match.home_team}
+                          <tr key={match.match_id}>
+                            <td width={'10px'}>
+                              <span>
+                                  {index + 1}
+                                </span>
                             </td>
-                            <td colSpan={3} className="align-middle">
-                              <div className="d-flex align-items-center gap-2 justify-content-center">
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="99"
-                                  className="form-control text-center"
-                                  style={{ width: '60px' }}
-                                  placeholder="0"
-                                  value={marcador.homeScore}
-                                  onChange={(e) => {
-                                    const newHome = e.target.value;
-                                    setMarcador({ ...marcador, homeScore: newHome });
-                                    if (newHome && marcador.awayScore) {
-                                      setSelectedMatches({
-                                        ...selectedMatches,
-                                        [match.match_id]: `marcador_${newHome}-${marcador.awayScore}`
-                                      });
-                                    }
-                                  }}
-                                />
-                                <span className="fw-bold">-</span>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  max="99"
-                                  className="form-control text-center"
-                                  style={{ width: '60px' }}
-                                  placeholder="0"
-                                  value={marcador.awayScore}
-                                  onChange={(e) => {
-                                    const newAway = e.target.value;
-                                    setMarcador({ ...marcador, awayScore: newAway });
-                                    if (marcador.homeScore && newAway) {
-                                      setSelectedMatches({
-                                        ...selectedMatches,
-                                        [match.match_id]: `marcador_${marcador.homeScore}-${newAway}`
-                                      });
-                                    }
-                                  }}
-                                />
+                            <td colSpan={5}>
+                              <div className="px-2">
+                                {/* Teams Header */}
+                                <div className="d-flex justify-content-evenly align-items-center gap-1">
+                                  <span className={`${styles.team} fw-bold`}>{match.home_team}</span>
+
+                                  {/* Marcador Input */}
+                                  <div className="text-center">
+
+                                    <div className="d-flex align-items-center gap-1 justify-content-center">
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        max="9"
+                                        className="form-control form-control-lg text-center"
+                                        style={{ width: "50px", fontSize: ".9rem", border: '1px solid #000', padding: '0' }}
+                                        placeholder="0"
+                                        value={marcador.homeScore}
+                                        onChange={(e) => {
+                                          const newHome = e.target.value;
+                                          setMarcador({ ...marcador, homeScore: newHome });
+                                          if (newHome && marcador.awayScore) {
+                                            setSelectedMatches({
+                                              ...selectedMatches,
+                                              [match.match_id]: `marcador_${newHome}-${marcador.awayScore}`
+                                            });
+                                          }
+                                        }}
+                                      />
+
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        max="9"
+                                        className="form-control form-control-lg text-center"
+                                        style={{ width: "50px", fontSize: ".9rem", border: '1px solid #000', padding: '0' }}
+                                        placeholder="0"
+                                        value={marcador.awayScore}
+                                        onChange={(e) => {
+                                          const newAway = e.target.value;
+                                          setMarcador({ ...marcador, awayScore: newAway });
+                                          if (marcador.homeScore && newAway) {
+                                            setSelectedMatches({
+                                              ...selectedMatches,
+                                              [match.match_id]: `marcador_${marcador.homeScore}-${newAway}`
+                                            });
+                                          }
+                                        }}
+                                      />
+                                    </div>
+
+                                  </div>
+
+                                  <span className={`${styles.team} fw-bold`}>{match.away_team}</span>
+                                </div>
 
                               </div>
-
-                              <small className="text-muted d-block text-center mt-1">Marcador exacto</small>
-
-                            </td>
-
-                            <td colSpan={1} className="text-end fw-semibold align-middle">
-                              {match.away_team}
-                            </td>
-                            <td className="text-center align-middle">
-                              {match.date}
                             </td>
                           </tr>
                         );
                       }
 
                       return (
-                        <tr key={match.match_id} className={rowClass}>
+                        <tr key={index} className="mb-3">
 
-                          {/* Local */}
-                          <td className="text-center" style={{ cursor: 'pointer' }} onClick={() =>
-                            setSelectedMatches({
-                              ...selectedMatches,
-                              [match.match_id]: `gana_local_${match.home_team}`,
-                            })
-                          }>
+                          <td width={'10px'}>
+                            {index + 1}
+                          </td>
+
+                          <td
+                            className={`align-middle p-1`}
+                            onClick={() =>
+                              setSelectedMatches({
+                                ...selectedMatches,
+                                [match.match_id]: `gana_local_${match.home_team}`,
+                              })
+                            }
+                          >
+
+                            {/* Local Button */}
+                            <span className={`${styles.marcador} ${isHomeSelected ? 'text-bg-warning' : 'btn-outline-success'}`}>
+                              {isHomeSelected && ''} L
+                            </span>
+                          </td>
+
+                          <td className="text-center align-middle">
+                            <span className={`${styles.team} fw-bold`}>{match.home_team}</span>
+                          </td>
+
+                          <td
+                            className={`align-middle`}
+                            onClick={() =>
+                              setSelectedMatches({
+                                ...selectedMatches,
+                                [match.match_id]: "empate",
+                              })
+                            }
+                          >
+                            {/* Draw Button */}
+                            <span className={`${styles.marcador} ${isDrawSelected ? 'text-bg-warning' : 'btn-outline-success'}`}>
+                              {isDrawSelected && ''} E
+                            </span>
+                          </td>
+
+                          <td className="align-middle">
+                            <span className={`${styles.team} fw-bold`}>{match.away_team}</span>
+                          </td>
+
+                          <td
+                            className={`align-middle`}
+                            onClick={() =>
+                              setSelectedMatches({
+                                ...selectedMatches,
+                                [match.match_id]: `gana_visitante_${match.away_team}`,
+                              })
+                            }
+                          >
+                            {/* Away Button */}
+                            <span className={`${styles.marcador} ${isAwaySelected ? 'text-bg-warning' : 'btn-outline-success'}`}>
+                              {isAwaySelected && ''} V
+                            </span>
+                          </td>
+
+                          <td className="d-none">
+                            {/* Hidden radio inputs for form validation */}
                             <input
-                              className="form-check-input d-none"
+                              className="d-none"
                               type="radio"
                               name={`match-${match.match_id}`}
-                              id={`home-win-${match.match_id}`}
                               value={`gana_local_${match.home_team}`}
                               checked={isHomeSelected}
                               onChange={() => { }}
                             />
-                            {isHomeSelected && <span className="badge bg-success">✓</span>}
-                            {!isHomeSelected && <span className="text-muted">L</span>}
-                          </td>
-
-                          <td className="text-end fw-semibold">{match.home_team}</td>
-
-                          <td className="text-center" style={{ cursor: 'pointer' }} onClick={() =>
-                            setSelectedMatches({
-                              ...selectedMatches,
-                              [match.match_id]: "empate",
-                            })
-                          }>
                             <input
-                              className="form-check-input d-none"
+                              className="d-none"
                               type="radio"
                               name={`match-${match.match_id}`}
-                              id={`draw-${match.match_id}`}
                               value="empate"
                               checked={isDrawSelected}
                               onChange={() => { }}
                             />
-                            {isDrawSelected && <span className="badge bg-warning">✓</span>}
-                            {!isDrawSelected && <span className="text-muted">E</span>}
-                          </td>
-
-                          <td className="text-start fw-semibold">{match.away_team}</td>
-
-                          <td className="text-center" style={{ cursor: 'pointer' }} onClick={() =>
-                            setSelectedMatches({
-                              ...selectedMatches,
-                              [match.match_id]: `gana_visitante_${match.away_team}`,
-                            })
-                          }>
                             <input
-                              className="form-check-input d-none"
+                              className="d-none"
                               type="radio"
                               name={`match-${match.match_id}`}
-                              id={`away-win-${match.match_id}`}
                               value={`gana_visitante_${match.away_team}`}
                               checked={isAwaySelected}
                               onChange={() => { }}
                             />
-                            {isAwaySelected && <span className="badge bg-info">✓</span>}
-                            {!isAwaySelected && <span className="text-muted">V</span>}
                           </td>
-
-                          <td className="text-center">
-                            {match.date}
-                          </td>
-
                         </tr>
                       );
                     })}
@@ -579,7 +605,7 @@ export default function Home() {
                             <td colSpan={5}>
                               <div className="px-2">
                                 <span>
-                                  {index > 6 && (<strong className={`${styles.spanNumber}`}>{index + 1}</strong>)}
+                                  {index >= 0 && (<strong className={`${styles.spanNumber}`}>{index + 1}</strong>)}
                                 </span>
 
                                 {/* Teams Header */}
@@ -595,7 +621,7 @@ export default function Home() {
                                         min="0"
                                         max="9"
                                         className="form-control form-control-lg text-center"
-                                        style={{ width: "50px", fontSize: ".9rem" }}
+                                        style={{ width: "50px", fontSize: ".9rem", border: '1px solid #000' }}
                                         placeholder="0"
                                         value={marcador.homeScore}
                                         onChange={(e) => {
@@ -615,7 +641,7 @@ export default function Home() {
                                         min="0"
                                         max="9"
                                         className="form-control form-control-lg text-center"
-                                        style={{ width: "50px", fontSize: ".9rem" }}
+                                        style={{ width: "50px", fontSize: ".9rem", border: '1px solid #000' }}
                                         placeholder="0"
                                         value={marcador.awayScore}
                                         onChange={(e) => {
@@ -654,7 +680,7 @@ export default function Home() {
                             }
                           >
                             <span>
-                              {index > 6 && (<strong className={`${styles.spanNumber}`}>{index + 1}</strong>)}
+                              {index >= 0 && (<strong className={`${styles.spanNumber}`}>{index + 1}</strong>)}
                             </span>
 
                             {/* Local Button */}
@@ -745,99 +771,103 @@ export default function Home() {
               {/* <h4>Partidos Internacionales</h4> */}
 
               {/* Desktop Table - Hidden on mobile */}
-              <div className="table-responsive d-none d-md-block">
+              <div className="table-responsive d-none d-md-block container pe-5">
                 <table className="table table-hover table-bordered">
-                  <thead className="table-primary">
-                    <tr>
-                      <th scope="col">Local</th>
-                      <th scope="col">Equipo Local</th>
-                      <th scope="col">Empate</th>
-                      <th scope="col">Equipo Visitante</th>
-                      <th scope="col">Visitante</th>
-                      <th scope="col">Competencia</th>
-                    </tr>
-                  </thead>
+                  
                   <tbody>
-                    {internationalMatches.map((match) => {
+                    {internationalMatches.map((match, index) => {
                       const selection = selectedMatches[match.match_id];
                       const isHomeSelected = selection === `gana_local_${match.home_team}`;
                       const isDrawSelected = selection === "empate";
                       const isAwaySelected = selection === `gana_visitante_${match.away_team}`;
 
-                      let rowClass = "";
-                      if (isHomeSelected) rowClass = "table-success";
-                      else if (isDrawSelected) rowClass = "table-warning";
-                      else if (isAwaySelected) rowClass = "table-info";
-
                       return (
-                        <tr key={match.match_id} className={rowClass}>
+                        <tr key={match.match_id} className="mb-3">
 
-                          {/* Local */}
-                          <td className="text-center" style={{ cursor: 'pointer' }} onClick={() =>
-                            setSelectedMatches({
-                              ...selectedMatches,
-                              [match.match_id]: `gana_local_${match.home_team}`,
-                            })
-                          }>
+                          <td width={'10px'} >
+                            {index + 10}
+                          </td>
+
+                          <td
+                            className={`align-middle`}
+                            onClick={() =>
+                              setSelectedMatches({
+                                ...selectedMatches,
+                                [match.match_id]: `gana_local_${match.home_team}`,
+                              })
+                            }
+                          >
+                            
+                            {/* Local Button */}
+                            <span className={`${styles.marcador} ${isHomeSelected ? 'text-bg-warning' : 'btn-outline-success'}`}>
+                              {isHomeSelected && ''} L
+                            </span>
+                          </td>
+
+                          <td className="text-center align-middle">
+                            <span className={`${styles.team} fw-bold`}>{match.home_team}</span>
+                          </td>
+
+                          <td
+                            className={`align-middle`}
+                            onClick={() =>
+                              setSelectedMatches({
+                                ...selectedMatches,
+                                [match.match_id]: "empate",
+                              })
+                            }
+                          >
+                            {/* Draw Button */}
+                            <span className={`${styles.marcador} ${isDrawSelected ? 'text-bg-warning' : 'btn-outline-success'}`}>
+                              {isDrawSelected && ''} E
+                            </span>
+                          </td>
+
+                          <td className="align-middle">
+                            <span className={`${styles.team} fw-bold`}>{match.away_team}</span>
+                          </td>
+
+                          <td
+                            className={`align-middle`}
+                            onClick={() =>
+                              setSelectedMatches({
+                                ...selectedMatches,
+                                [match.match_id]: `gana_visitante_${match.away_team}`,
+                              })
+                            }
+                          >
+                            {/* Away Button */}
+                            <span className={`${styles.marcador} ${isAwaySelected ? 'text-bg-warning' : 'btn-outline-success'}`}>
+                              {isAwaySelected && ''} V
+                            </span>
+                          </td>
+                          <td className="d-none">
+                            {/* Hidden radio inputs for form validation */}
                             <input
-                              className="form-check-input d-none"
+                              className="d-none"
                               type="radio"
                               name={`match-${match.match_id}`}
-                              id={`home-win-${match.match_id}`}
                               value={`gana_local_${match.home_team}`}
                               checked={isHomeSelected}
                               onChange={() => { }}
                             />
-                            {isHomeSelected && <span className="badge bg-success">✓</span>}
-                            {!isHomeSelected && <span className="text-muted">L</span>}
-                          </td>
-
-                          <td className="text-end fw-semibold">{match.home_team}</td>
-
-                          <td className="text-center" style={{ cursor: 'pointer' }} onClick={() =>
-                            setSelectedMatches({
-                              ...selectedMatches,
-                              [match.match_id]: "empate",
-                            })
-                          }>
                             <input
-                              className="form-check-input d-none"
+                              className="d-none"
                               type="radio"
                               name={`match-${match.match_id}`}
-                              id={`draw-${match.match_id}`}
                               value="empate"
                               checked={isDrawSelected}
                               onChange={() => { }}
                             />
-                            {isDrawSelected && <span className="badge bg-warning">✓</span>}
-                            {!isDrawSelected && <span className="text-muted">E</span>}
-                          </td>
-
-                          <td className="text-start fw-semibold">{match.away_team}</td>
-
-                          <td className="text-center" style={{ cursor: 'pointer' }} onClick={() =>
-                            setSelectedMatches({
-                              ...selectedMatches,
-                              [match.match_id]: `gana_visitante_${match.away_team}`,
-                            })
-                          }>
                             <input
-                              className="form-check-input d-none"
+                              className="d-none"
                               type="radio"
                               name={`match-${match.match_id}`}
-                              id={`away-win-${match.match_id}`}
                               value={`gana_visitante_${match.away_team}`}
                               checked={isAwaySelected}
                               onChange={() => { }}
                             />
-                            {isAwaySelected && <span className="badge bg-info">✓</span>}
-                            {!isAwaySelected && <span className="text-muted">V</span>}
                           </td>
-
-                          <td className="text-center">
-                            {match.league}
-                          </td>
-
                         </tr>
                       );
                     })}
@@ -988,7 +1018,7 @@ export default function Home() {
                           <div className="d-flex justify-content-between align-items-center mb-2">
                             {/* Display selections */}
                             <div>
-                              <div className="d-flex flex-wrap align-middle gap-2">
+                              <div className="d-flex align-middle gap-2">
                                 {sortedSelections.map(([matchId, selection]) => {
                                   const match = quinielaMatches.find(m => m.match_id === matchId);
                                   if (!match) return null;
@@ -1013,6 +1043,11 @@ export default function Home() {
                                     </span>
                                   );
                                 })}
+
+                                <span className={`${styles.quinielaName} text-truncate align-items-center`}>
+                                  - <strong className="fw-bold" style={{ fontSize: '0.9rem', color: '#028090' }}>{quiniela.nombre}</strong>
+                                </span>
+
                               </div>
                             </div>
 
@@ -1099,7 +1134,7 @@ export default function Home() {
               </span>
             </div>
 
-            <div className="d-flex flex-column flex-sm-row gap-2 justify-content-center">
+            <div className="d-flex flex-column flex-row gap-2 justify-content-center">
               <div className={`${styles.buttonGroup} d-flex justify-content-between gap-2`}>
 
                 <button type="button" className="btn btn-warning" onClick={() => {
