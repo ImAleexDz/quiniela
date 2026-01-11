@@ -387,11 +387,11 @@ async function processQuiniela(body: any): Promise<{ sheetName: string; data: an
                 
                 // Convert selection to readable format
                 if (selection && selection.startsWith('gana_local_')) {
-                    predictions.push('Local');
+                    predictions.push('L');
                 } else if (selection === 'empate') {
-                    predictions.push('Empate');
+                    predictions.push('E');
                 } else if (selection && selection.startsWith('gana_visitante_')) {
-                    predictions.push('Visitante');
+                    predictions.push('V');
                 } else if (selection && /^\d+-\d+$/.test(selection)) {
                     // Handle marcador format (e.g., "3-2", "1-1", "0-1")
                     predictions.push(selection);

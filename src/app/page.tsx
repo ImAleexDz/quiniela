@@ -7,13 +7,13 @@ import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 
 export default function Home() {
 
+  const [isActive, setIsActive] = useState<boolean>(true);
   const [selectedMatches, setSelectedMatches] = useState<{ [key: string]: string }>({});
   const [marcador, setMarcador] = useState<{ homeScore: string; awayScore: string }>({ homeScore: "", awayScore: "" });
   const [name, setName] = useState<string>("");
   const [matches, setMatches] = useState<any[]>([]);
   const [internationalMatches, setInternationalMatches] = useState<any[]>([]);
   const [currentJornada, setCurrentJornada] = useState<string>("");
-  const [currentLeague, setCurrentLeague] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [quinielasArray, setQuinielasArray] = useState<any[]>([]);
   const [message, setMessage] = useState<string>("Cargando datos...");
@@ -106,8 +106,8 @@ export default function Home() {
 
     // Generate random score for the last Liga MX match
     if (matches.length > 0) {
-      const randomHome = Math.floor(Math.random() * 5); // 0-4 goals
-      const randomAway = Math.floor(Math.random() * 5); // 0-4 goals
+      const randomHome = Math.floor(Math.random() * 4); // 0-4 goals
+      const randomAway = Math.floor(Math.random() * 4); // 0-4 goals
       setMarcador({ homeScore: randomHome.toString(), awayScore: randomAway.toString() });
       const lastMatch = matches[matches.length - 1];
       randomSelections[lastMatch.match_id] = `marcador_${randomHome}-${randomAway}`;
@@ -256,8 +256,28 @@ export default function Home() {
   }
 
   useEffect(() => {
+    const fetchActive = async (sheetName = 'Configuraciones') => {
+      const response = await fetch(`/api/quiniela?sheet=${encodeURIComponent(sheetName)}`);
+      const data = await response.json();
+
+      if (data.data && Array.isArray(data.data)) {
+        const configRow = data.data[1]; // Assuming configurations are in the second row
+        const isActive = configRow[1]; // Assuming "active" status is in the second column
+
+        console.log(isActive)
+        if (isActive.toLowerCase() === 'true') {
+          setIsActive(true);
+        } else {
+          setIsActive(false);
+          setLoading(false);
+          setMessage('La quiniela no está activa en este momento. Por favor, vuelve más tarde.');
+        }
+      }
+    };
+
+    fetchActive('Configuraciones');
+
     const fetchData = async (sheetName = 'Liga MX') => {
-      console.log(sheetName);
       const response = await fetch(`/api/quiniela?sheet=${encodeURIComponent(sheetName)}`);
       const data = await response.json();
 
@@ -322,7 +342,6 @@ export default function Home() {
 
         if (matchesData.length > 0) {
           setCurrentJornada(matchesData[0].jornada);
-          setCurrentLeague(matchesData[0].league);
         }
       }
     };
@@ -334,7 +353,6 @@ export default function Home() {
       const response = await fetch(`/api/quiniela?sheet=${encodeURIComponent(sheetName)}`);
       const data = await response.json();
 
-      console.log(data)
       if (data.data && Array.isArray(data.data)) {
         // Process matches based on sheet name
         const matchesData = data.data.slice(1).map((row: string[]) => ({
@@ -356,7 +374,7 @@ export default function Home() {
     <div className={`${!loading ? styles.page : ''} text-center pt-2 pb-5`}>
       {loading && <p className="mt-5">{message}</p>}
 
-      {!loading && (
+      {!loading && isActive && (
         <form onSubmit={(e) => {
           e.preventDefault();
           sendDataToWhatsapp();
@@ -1163,6 +1181,12 @@ export default function Home() {
 
 
         </form>
+      )}
+
+      {!loading && !isActive && (
+        <div className="alert alert-warning" role="alert">
+          {message}
+        </div>
       )}
     </div>
   );
