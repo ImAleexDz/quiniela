@@ -18,6 +18,7 @@ export default function Home() {
   const [quinielasArray, setQuinielasArray] = useState<any[]>([]);
   const [message, setMessage] = useState<string>("Cargando datos...");
   const [dateRange, setDateRange] = useState<{ start: string; end: string }>({ start: "", end: "" });
+  const phoneNumber = process.env.NEXT_PUBLIC_PHONE_NUMBER || '';
 
   // Function to add current quiniela to array
   const addQuinielaToArray = () => {
@@ -231,7 +232,7 @@ export default function Home() {
 
       // Encode message for WhatsApp URL
       const encodedMessage = encodeURIComponent(whatsappMessage);
-      const whatsappURL = `https://wa.me/5215648496470?text=${encodedMessage}`;
+      const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
 
       // Open WhatsApp in the same tab instead of new window
       window.location.href = whatsappURL;
@@ -1100,7 +1101,7 @@ export default function Home() {
               </p>
 
               <p className="m-0 fw-bold text-warning">
-                <span className="text-light">Informes:</span> 56 4849 6470
+                <span className="text-light">Informes:</span> {phoneNumber}
               </p>
             </div>
 
