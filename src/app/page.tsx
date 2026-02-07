@@ -11,6 +11,7 @@ export default function Home() {
   const [selectedMatches, setSelectedMatches] = useState<{ [key: string]: string }>({});
   const [marcador, setMarcador] = useState<{ homeScore: string; awayScore: string }>({ homeScore: "", awayScore: "" });
   const [name, setName] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
   const [matches, setMatches] = useState<any[]>([]);
   const [internationalMatches, setInternationalMatches] = useState<any[]>([]);
   const [currentJornada, setCurrentJornada] = useState<string>("");
@@ -58,7 +59,8 @@ export default function Home() {
       jornada: currentJornada,
       liga: 'Liga MX',
       includeBothLeagues: true,
-      fecha: new Date().toISOString()
+      fecha: new Date().toISOString(),
+      telefono: phone
     };
 
     setQuinielasArray([...quinielasArray, newQuiniela]);
@@ -150,7 +152,8 @@ export default function Home() {
       jornada: currentJornada,
       liga: 'Liga MX',
       includeBothLeagues: true,
-      fecha: new Date().toISOString()
+      fecha: new Date().toISOString(),
+      telefono: phone
     }] : quinielasArray;
 
     if (quinielasToSend.length === 0) {
@@ -403,16 +406,15 @@ export default function Home() {
 
               {/* Desktop Table - Hidden on mobile */}
               <div className="table-responsive d-none d-md-block container">
-                <table className="table table-hover table-bordered">
-
+                <table className="table table-hover table-bordered" style={{ tableLayout: 'fixed' }}>
                   <thead className="table-primary">
                     <tr>
-                      <th scope="col"></th>
+                      <th scope="col" style={{width: '3%'}}></th>
                       <th scope="col">Local</th>
-                      <th scope="col"></th>
+                      <th scope="col" ></th>
                       <th scope="col">Empate</th>
-                      <th scope="col"></th>
-                      <th scope="col" >Visitante</th>
+                      <th scope="col" ></th>
+                      <th scope="col">Visitante</th>
                     </tr>
                   </thead>
 
@@ -434,7 +436,7 @@ export default function Home() {
                       if (isLastMatch) {
                         return (
                           <tr key={match.match_id}>
-                            <td width={'10px'}>
+                            <td width={'3%'}>
                               <span>
                                   {index + 1}
                                 </span>
@@ -504,12 +506,14 @@ export default function Home() {
                       return (
                         <tr key={index} className="mb-3">
 
-                          <td width={'10px'}>
-                            {index + 1}
+                          <td width={'3%'}>
+                            <span>
+                              {index + 1}
+                            </span>
                           </td>
 
                           <td
-                            className={`align-middle p-1`}
+                            className={`align-middle`}
                             onClick={() =>
                               setSelectedMatches({
                                 ...selectedMatches,
@@ -790,8 +794,8 @@ export default function Home() {
               {/* <h4>Partidos Internacionales</h4> */}
 
               {/* Desktop Table - Hidden on mobile */}
-              <div className="table-responsive d-none d-md-block container pe-5">
-                <table className="table table-hover table-bordered">
+              <div className="table-responsive d-none d-md-block container">
+                <table className="table table-hover table-bordered" style={{ tableLayout: 'fixed' }}>
                   
                   <tbody>
                     {internationalMatches.map((match, index) => {
@@ -803,8 +807,10 @@ export default function Home() {
                       return (
                         <tr key={match.match_id} className="mb-3">
 
-                          <td width={'10px'} >
-                            {index + 10}
+                          <td width={'3%'}>
+                              <span>
+                                {index + 10}
+                              </span>
                           </td>
 
                           <td
@@ -1089,7 +1095,7 @@ export default function Home() {
 
           {/* Footer */}
 
-          <div className={`${styles.footer}`}>
+          <div className={`${styles.footer} container`}>
 
             <div className="d-flex flex-column justify-content-between">
               <p className="m-0 fw-bold text-warning">
@@ -1109,6 +1115,11 @@ export default function Home() {
               <label htmlFor="name" className="d-block">
                 Nombre:
                 <input id="name" type="text" className="form-control mt-2" value={name} onChange={e => setName(e.target.value)} />
+              </label>
+
+              <label htmlFor="phone" className="d-block">
+                Teléfono:
+                <input id="phone" type="text" className="form-control mt-2" value={phone} onChange={e => setPhone(e.target.value)} />
               </label>
             </div>
 
